@@ -1,0 +1,22 @@
+---
+source: dnd_starter_rulebook
+chapter: Inflict Wounds
+---
+
+## Inflict Wounds 
+
+_1st-level necromancy_ 
+
+**Casting Time:** 1 action **Range:** Touch **Components:** V, S 
+
+**Duration:** Instantaneous 
+
+Make a melee spell attack against a creature you can reach. On a hit, the target takes 3d10 necrotic damage. 
+
+_**At Higher Levels.**_ When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d10 for each slot level above 1st. 
+
+_2nd-level abjuration_ 
+
+**Casting Time:** 1 action **Range:** Touch **Components:** V, S **Duration:** Instantaneous 
+
+You touch a creature and can end either one disease or one condition afflicting it. The condition can be blinded, deafened, paralyzed, or poisoned.

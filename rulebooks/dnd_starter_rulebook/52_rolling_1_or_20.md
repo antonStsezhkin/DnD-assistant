@@ -1,0 +1,10 @@
+---
+source: dnd_starter_rulebook
+chapter: Rolling 1 or 20
+---
+
+## Rolling 1 or 20 
+
+Sometimes fate blesses or curses a combatant, causing the novice to hit or the veteran to miss. 
+
+If the d20 roll for an attack is a 20, the attack hits regardless of any modifiers or the target’s AC. In addition, the attack is a critical hit, as explained later in the chapter. If the d20 roll for an attack is a 1, the attack misses regardless of any modifiers or the target’s AC.

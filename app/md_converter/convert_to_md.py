@@ -1,10 +1,11 @@
 from pathlib import Path
-import pymupdf4llm
-import docx2txt
-import pandas as pd
+
+from convert_pdf import convert_pdf
+from convert_word import convert_word
+from convert_excel import convert_excel
+from splitter import split_and_write
 
 
-# 1. Получаем корень проекта через маркер (requirements.txt) - это спасет от путаницы с ../
 def get_project_root() -> Path:
     for parent in Path(__file__).resolve().parents:
         if (parent / "requirements.txt").exists():
@@ -14,9 +15,8 @@ def get_project_root() -> Path:
 
 ROOT_DIR = get_project_root()
 INPUT_DIR = ROOT_DIR / "data_source"
-OUTPUT_DIR = ROOT_DIR / "md"
+OUTPUT_DIR = ROOT_DIR / "rulebooks"
 
-# Защита: сообщаем, если папки с исходными файлами нет на диске
 if not INPUT_DIR.exists():
     raise FileNotFoundError(
         f"\n[КРИТИЧЕСКАЯ ОШИБКА] Папка с исходными файлами не найдена!\n"
@@ -24,47 +24,57 @@ if not INPUT_DIR.exists():
         f"Пожалуйста, создайте её вручную и положите туда файлы."
     )
 
-# Создаем папку для markdown, если её нет
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+_PDF_EXTS = {".pdf"}
+_WORD_EXTS = {".docx", ".doc"}
+_EXCEL_EXTS = {".xlsx", ".xls", ".csv"}
+_TEXT_EXTS = {".txt"}
 
 
 def convert_files_to_markdown():
-    # .iterdir() заменяет os.listdir() и сразу возвращает объекты Path
     for file_path in INPUT_DIR.iterdir():
         if file_path.is_dir():
-            continue  # Пропускаем подпапки, если они есть
-
-        filename = file_path.name
-        base_name = file_path.stem  # Имя без расширения (заменяет os.path.splitext)
-        ext = file_path.suffix.lower()  # Расширение с точкой (например, '.pdf')
-
-        output_file = OUTPUT_DIR / f"{base_name}.md"
-
-        # Пропуск уже обработанных
-        if output_file.exists():
             continue
 
-        print(f"Converting {filename}...")
+        ext = file_path.suffix.lower()
+        if ext not in _PDF_EXTS | _WORD_EXTS | _EXCEL_EXTS | _TEXT_EXTS:
+            continue
+
+        # Пробелы → подчёркивания: pymupdf4llm санитизирует image_path таким же образом
+        safe_stem = file_path.stem.replace(' ', '_')
+        book_dir = OUTPUT_DIR / safe_stem
+        if book_dir.exists():
+            continue
+
+        print(f"Converting {file_path.name}...")
         try:
-            if ext == '.pdf':
-                md_text = pymupdf4llm.to_markdown(str(file_path), force_text=True, write_images=False)
+            if ext in _PDF_EXTS:
+                md_text = convert_pdf(file_path, book_dir)
+                split_and_write(md_text, source_name=safe_stem, output_dir=book_dir)
 
-            elif ext in ['.docx', '.doc']:
-                md_text = f"# {base_name}\n\n{docx2txt.process(str(file_path))}"
+            elif ext in _WORD_EXTS:
+                md_text = convert_word(file_path)
+                split_and_write(md_text, source_name=safe_stem, output_dir=book_dir)
 
-            elif ext in ['.xlsx', '.xls', '.csv']:
-                # Использование str(file_path) гарантирует совместимость со старыми версиями pandas
-                df = pd.read_excel(str(file_path)) if ext != '.csv' else pd.read_csv(str(file_path))
-                md_text = f"# {base_name}\n\n{df.to_markdown(index=False)}"
+            elif ext in _TEXT_EXTS:
+                text = file_path.read_text(encoding="utf-8")
+                split_and_write(text, source_name=safe_stem, output_dir=book_dir, content_type="text")
 
-            else:
-                continue  # Пропускаем неподдерживаемые форматы
-
-            # Запись файла через pathlib (.write_text) автоматически открывает и закрывает файл
-            output_file.write_text(md_text, encoding="utf-8")
+            else:  # Excel / CSV
+                for sheet_name, csv_text in convert_excel(file_path):
+                    if sheet_name is None:
+                        # CSV — чанки прямо в папке книги
+                        target_dir = book_dir
+                        src_name = file_path.stem
+                    else:
+                        # Excel — каждый лист в своей подпапке
+                        target_dir = book_dir / sheet_name
+                        src_name = f"{file_path.stem} ({sheet_name})"
+                    split_and_write(csv_text, source_name=src_name, output_dir=target_dir, content_type="csv")
 
         except Exception as e:
-            print(f"Error processing {filename}: {e}")
+            print(f"Error processing {file_path.name}: {e}")
 
 
 if __name__ == "__main__":
