@@ -468,6 +468,32 @@ CREATE TABLE IF NOT EXISTS equipment (
 );
 
 -- -----------------------------------------------------------------------------
+-- LOCALISATION
+--
+-- terminology: canonical game-mechanic slugs → display labels per language.
+--   Players see "공격 굴림" (ko) or "Angriffswurf" (de); the engine keys on "attack_roll".
+--   term_id is a lowercase_snake_case slug matching whatever the engine uses internally.
+--
+-- item_names: translated display names for equipment items.
+--   Load only the languages present in the party — one query, no duplication of item data.
+--   Pattern: SELECT name FROM item_names WHERE item_id = ? AND language = ?
+--   Falls back to equipment.name when a translation is missing.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS terminology (
+    term_id   TEXT NOT NULL,   -- "attack_roll", "saving_throw", "opportunity_attack"
+    language  TEXT NOT NULL,   -- ISO 639-1 or plain name: "en", "ko", "de", "ru"
+    term      TEXT NOT NULL,   -- translated label shown in the UI
+    PRIMARY KEY (term_id, language)
+);
+
+CREATE TABLE IF NOT EXISTS item_names (
+    item_id   INTEGER NOT NULL REFERENCES equipment(id),
+    language  TEXT    NOT NULL,
+    name      TEXT    NOT NULL,
+    PRIMARY KEY (item_id, language)
+);
+
+-- -----------------------------------------------------------------------------
 -- INDICES — most FK columns and all name lookups
 -- -----------------------------------------------------------------------------
 CREATE INDEX IF NOT EXISTS idx_weapons_source       ON weapons(source_id);
@@ -486,6 +512,8 @@ CREATE INDEX IF NOT EXISTS idx_races_parent             ON races(parent_race_id)
 CREATE INDEX IF NOT EXISTS idx_spell_class_list         ON spell_class_list(class_id);
 CREATE INDEX IF NOT EXISTS idx_campaign_sources     ON campaign_sources(campaign_id, priority DESC);
 CREATE INDEX IF NOT EXISTS idx_campaign_exclusions  ON campaign_exclusions(campaign_id, entity_type);
+CREATE INDEX IF NOT EXISTS idx_terminology_language ON terminology(language);
+CREATE INDEX IF NOT EXISTS idx_item_names_language  ON item_names(language);
 CREATE INDEX IF NOT EXISTS idx_creature_resistances     ON creature_resistances(creature_id);
 CREATE INDEX IF NOT EXISTS idx_race_resistances         ON race_resistances(race_id);
 CREATE INDEX IF NOT EXISTS idx_creature_cond_immunities ON creature_condition_immunities(creature_id);

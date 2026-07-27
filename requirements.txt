@@ -1,3 +1,4 @@
 pymupdf4llm~=1.27.2
 docx2txt~=0.9
 pandas~=2.2.0
+requests~=2.32
