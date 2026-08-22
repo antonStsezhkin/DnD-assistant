@@ -1,0 +1,19 @@
+{
+    "defaults": {
+        "font": {
+            "name": "fira_code",
+            "size": "10",
+            "style": "regular"
+        }
+    },
+    "button": {
+        "font": {
+            "size": "10"
+        }
+    },
+    "label": {
+        "font": {
+            "size": "10"
+        }
+    }
+}
