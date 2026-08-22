@@ -5,7 +5,7 @@ ALTITUDE_PALETTE = {
     "w-3": {'color': (10, 40, 80), 'alt': -3, 'legend': 'Глубоководная впадина', 'type': 'water'},
     "w-2": {'color': (25, 75, 140), 'alt': -2, 'legend': 'Открытый океан', 'type': 'water'},
     "w-1": {'color': (65, 125, 195), 'alt': -1, 'legend': 'Мелководье', 'type': 'water'},
-    "w0": {'color': (65, 125, 175), 'alt': -1, 'legend': 'Мелководье (рифы)', 'type': 'water'},
+    "w0": {'color': (85, 145, 205), 'alt': -1, 'legend': 'Мелководье (рифы)', 'type': 'water'},
 
     # Высоты (Суша)
     "l-1": {'color': (115, 150, 120), 'alt': -1, 'legend': 'Ниже уровня моря', 'type': 'land'},

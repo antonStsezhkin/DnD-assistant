@@ -1,19 +1,30 @@
 {
     "defaults": {
         "font": {
-            "name": "fira_code",
-            "size": "10",
+            "name": "lucidaconsole",
+            "size": "13",
             "style": "regular"
         }
     },
     "button": {
         "font": {
-            "size": "10"
+            "size": "14",
+            "name": "lucidaconsole"
+        },
+        "colours": {
+            "normal_bg": "#353535",
+            "hovered_bg": "#454545",
+            "active_bg": "#555555",
+            "selected_bg": "#1a5f7a",
+            "normal_text": "#FFFFFF",
+            "hovered_text": "#FFFFFF",
+            "selected_text": "#00FFCC"
         }
     },
     "label": {
         "font": {
-            "size": "10"
+            "size": "14",
+            "name": "lucidaconsole"
         }
     }
 }
